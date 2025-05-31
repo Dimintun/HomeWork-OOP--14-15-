@@ -6,14 +6,16 @@ public class Movement : MonoBehaviour
     private const string VerticalAxisName = "Vertical";
 
     [SerializeField] private float _speed;
+    [SerializeField] private float _speedRotation;
     [SerializeField] private float _rotationSpeed;
+
     private float _deadZone = 0.1f;
 
     private float _xInput;
     private float _yInput;
-    
+
     private Vector3 _direction;
-    private Quaternion _rotation;
+    private Quaternion _lookRotation;
 
     private CharacterController _characterController;
 
@@ -22,28 +24,37 @@ public class Movement : MonoBehaviour
         _characterController = GetComponent<CharacterController>();
         if (_characterController == null)
             Debug.Log("Отсутствует компонент");
-
     }
 
     void Update()
     {
+        Move();
+
+        RotateToDirection(_direction);
+    }
+    private void Move()
+    {
         _xInput = Input.GetAxis(HorizontalAxisName);
         _yInput = Input.GetAxis(VerticalAxisName);
 
-        if (Mathf.Abs(_xInput) < _deadZone || Mathf.Abs(_yInput) < _deadZone)
+        _direction = new Vector3(_xInput, 0, _yInput);
+
+        if (_direction.magnitude < _deadZone)
             return;
 
-            _direction = GetNormalizeDirection(_xInput, _yInput);
-
-        _characterController.Move(_direction * _speed *  Time.deltaTime);
+        _direction = _direction.normalized;
+        _characterController.Move(_direction * _speed * Time.deltaTime);
     }
 
-    private Vector3 GetNormalizeDirection(float xInput, float yInput)
+    private void RotateToDirection(Vector3 direction)
     {
-        Vector3 direction = new Vector3(xInput, 0, yInput);
+        if (direction.magnitude < _deadZone)
+            return;
 
-        direction.Normalize();
-        return direction;
+        _lookRotation = Quaternion.LookRotation(direction);
+        float step = _speedRotation * Time.deltaTime;
+
+        transform.rotation = Quaternion.RotateTowards(transform.rotation, _lookRotation, step);
     }
 }
 
