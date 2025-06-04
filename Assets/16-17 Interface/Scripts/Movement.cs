@@ -7,9 +7,8 @@ public class Movement : MonoBehaviour
 
     [SerializeField] private float _speed;
     [SerializeField] private float _speedRotation;
-    [SerializeField] private float _rotationSpeed;
 
-    private float _deadZone = 0.1f;
+    private float _deadZone = 0.2f;
 
     private float _xInput;
     private float _yInput;
